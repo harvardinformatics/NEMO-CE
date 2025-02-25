@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         help_text="The user in the wait list.",
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],

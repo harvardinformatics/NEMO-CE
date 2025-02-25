@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="adjustment_requests_applied",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
     ]

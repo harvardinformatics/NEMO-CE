@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="Users who can approve/deny access requests for this area. Defaults to facility managers if left blank.",
                 related_name="access_request_reviewer_on_areas",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -71,7 +71,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="Users who can approve/deny adjustment requests for this area. Defaults to facility managers if left blank.",
                 related_name="adjustment_request_reviewer_on_areas",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 db_table="NEMO_tool_adjustment_request_reviewers",
                 help_text="Users who can approve/deny adjustment requests for this tool. Defaults to facility managers if left blank.",
                 related_name="adjustment_request_reviewer_on_tools",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.RunPython(

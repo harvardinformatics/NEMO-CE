@@ -131,7 +131,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "creator",
-                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"),
                 ),
                 ("tool", models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to="NEMO.Tool")),
                 (
@@ -173,7 +173,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         help_text="The user that changed the task to this status",
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],
@@ -236,7 +236,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="notifications",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],
@@ -305,7 +305,7 @@ class Migration(migrations.Migration):
                 blank=True,
                 help_text="Alternate staff members who are responsible for administration of this tool when the primary owner is unavailable.",
                 related_name="backup_for_tools",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -380,7 +380,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="+",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -391,7 +391,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="hidden_comments",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -403,7 +403,7 @@ class Migration(migrations.Migration):
             model_name="reservation",
             name="cancelled_by",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="NEMO.User"
             ),
         ),
         migrations.AlterField(
@@ -421,7 +421,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="reported_safety_issues",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -432,7 +432,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="resolved_safety_issues",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -443,7 +443,7 @@ class Migration(migrations.Migration):
                 help_text="The last user who modified this task. This should always be a staff member.",
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -477,7 +477,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.SET_NULL,
                 related_name="task_resolver",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -487,7 +487,7 @@ class Migration(migrations.Migration):
                 help_text="The staff member who is responsible for administration of this tool.",
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="primary_tool_owner",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AlterField(
@@ -652,7 +652,7 @@ class Migration(migrations.Migration):
                 db_table="NEMO_tool_backup_owners",
                 help_text="Alternate staff members who are responsible for administration of this tool when the primary owner is unavailable.",
                 related_name="backup_for_tools",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.RenameField(
@@ -941,7 +941,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.PROTECT,
                 related_name="primary_tool_owner",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.RenameField(

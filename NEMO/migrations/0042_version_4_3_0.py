@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("qualified_on", models.DateField(default=datetime.date.today)),
                 ("tool", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.tool")),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User")),
             ],
         ),
         migrations.RunPython(migrate_qualifications),
@@ -204,7 +204,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="recurring_charge_customer",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 (
@@ -213,7 +213,7 @@ class Migration(migrations.Migration):
                         help_text="The user who last modified this charge (and will be used as merchant on the charge).",
                         on_delete=django.db.models.deletion.PROTECT,
                         related_name="recurring_charge_updated",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 (

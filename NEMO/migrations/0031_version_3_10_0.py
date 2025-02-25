@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
                 db_table="NEMO_tool_superusers",
                 help_text="Superusers who can train users on this tool.",
                 related_name="superuser_for_tools",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.RunPython(new_version_news),

@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 help_text="Selected users will be the only ones allowed to self checkout this consumable. Leave blank for all.",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
     ]

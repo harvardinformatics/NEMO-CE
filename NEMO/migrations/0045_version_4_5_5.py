@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="area_access_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="consumable_withdrawal_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="reservation_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="staff_charge_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="training_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="usage_event_validated_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
     ]

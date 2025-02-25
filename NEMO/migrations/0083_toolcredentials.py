@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                     models.ManyToManyField(
                         blank=True,
                         help_text="Selected staff will be the only ones allowed to see these credentials. Leave blank for all staff.",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 ("tool", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.tool")),

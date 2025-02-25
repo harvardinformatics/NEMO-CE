@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                     "physical_access_level",
                     models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.PhysicalAccessLevel"),
                 ),
-                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ("user", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User")),
             ],
             options={"ordering": ["-end_time"]},
         ),
@@ -164,7 +164,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="access_requests_created",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 (
@@ -175,13 +175,13 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="access_requests_updated",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 (
                     "other_users",
                     models.ManyToManyField(
-                        blank=True, help_text="Select the other users requesting access.", to=settings.AUTH_USER_MODEL
+                        blank=True, help_text="Select the other users requesting access.", to="NEMO.User"
                     ),
                 ),
                 (
@@ -195,7 +195,7 @@ class Migration(migrations.Migration):
                         null=True,
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="access_requests_reviewed",
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],

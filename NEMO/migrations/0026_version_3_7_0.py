@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         help_text="The user who is submitting the request.",
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],
@@ -111,7 +111,7 @@ class Migration(migrations.Migration):
                 ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
                 ("creation_date", models.DateTimeField(default=django.utils.timezone.now)),
                 ("content", models.TextField()),
-                ("author", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ("author", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User")),
                 (
                     "buddy_request",
                     models.ForeignKey(

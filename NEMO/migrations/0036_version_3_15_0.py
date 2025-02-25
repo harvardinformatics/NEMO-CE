@@ -102,7 +102,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         help_text="The staff member to display on the staff status page.",
                         on_delete=django.db.models.deletion.CASCADE,
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
             ],

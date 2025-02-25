@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 help_text="Select a user to associate with this contact. When set, this contact information will be shown instead of the user information on pages like tool details.",
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
     ]

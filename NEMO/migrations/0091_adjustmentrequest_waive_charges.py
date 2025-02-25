@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="area_access_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -51,7 +51,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="consumable_withdrawal_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="reservation_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -93,7 +93,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="staff_charge_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="training_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -135,7 +135,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="usage_event_waived_set",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(

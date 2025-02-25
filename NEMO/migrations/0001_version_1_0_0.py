@@ -1031,7 +1031,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="usage_event_operator",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1050,21 +1050,21 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="usage_event_user",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
             model_name="trainingsession",
             name="trainee",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="student_set", to=settings.AUTH_USER_MODEL
+                on_delete=django.db.models.deletion.CASCADE, related_name="student_set", to="NEMO.User"
             ),
         ),
         migrations.AddField(
             model_name="trainingsession",
             name="trainer",
             field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE, related_name="teacher_set", to=settings.AUTH_USER_MODEL
+                on_delete=django.db.models.deletion.CASCADE, related_name="teacher_set", to="NEMO.User"
             ),
         ),
         migrations.AddField(
@@ -1074,7 +1074,7 @@ class Migration(migrations.Migration):
                 help_text="The staff member who is responsible for administration of this tool.",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="primary_tool_owner",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1095,7 +1095,7 @@ class Migration(migrations.Migration):
                 help_text="The alternate staff member who is responsible for administration of this tool.",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="secondary_tool_owner",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1105,7 +1105,7 @@ class Migration(migrations.Migration):
                 help_text="The user who created the task.",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="created_tasks",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1117,7 +1117,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="task_first_responder",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1128,7 +1128,7 @@ class Migration(migrations.Migration):
                 help_text="The last user who modified this task. This should always be a staff member.",
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1162,7 +1162,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="task_resolver",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1180,7 +1180,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="staff_charge_customer",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1194,7 +1194,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="staff_charge_actor",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1205,7 +1205,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="reported_safety_issues",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1216,7 +1216,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="resolved_safety_issues",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1260,7 +1260,7 @@ class Migration(migrations.Migration):
             model_name="reservation",
             name="cancelled_by",
             field=models.ForeignKey(
-                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+                blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"
             ),
         ),
         migrations.AddField(
@@ -1269,7 +1269,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="reservation_creator",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1306,13 +1306,13 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="reservation_user",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
             model_name="physicalaccesslog",
             name="user",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"),
         ),
         migrations.AddField(
             model_name="membershiphistory",
@@ -1320,7 +1320,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 help_text="The staff member who changed the membership status of the account, project, or user in question.",
                 on_delete=django.db.models.deletion.CASCADE,
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1363,7 +1363,7 @@ class Migration(migrations.Migration):
                 help_text="The user who will use the consumable item.",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="consumable_user",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1373,7 +1373,7 @@ class Migration(migrations.Migration):
                 help_text="The staff member that performed the withdraw.",
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="consumable_merchant",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1395,7 +1395,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="configurationhistory",
             name="user",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"),
         ),
         migrations.AddField(
             model_name="configuration",
@@ -1403,7 +1403,7 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(
                 blank=True,
                 help_text="Select the users that are allowed to change this configuration.",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1418,7 +1418,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="comment",
             name="author",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"),
         ),
         migrations.AddField(
             model_name="comment",
@@ -1428,7 +1428,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="hidden_comments",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1443,7 +1443,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="areaaccessrecord",
             name="customer",
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="NEMO.User"),
         ),
         migrations.AddField(
             model_name="areaaccessrecord",
@@ -1465,7 +1465,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="+",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1477,7 +1477,7 @@ class Migration(migrations.Migration):
                 null=True,
                 on_delete=django.db.models.deletion.CASCADE,
                 related_name="alerts",
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(
@@ -1486,7 +1486,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 help_text="The staff member who changed the active state of the account, project, or user in question.",
                 on_delete=django.db.models.deletion.CASCADE,
-                to=settings.AUTH_USER_MODEL,
+                to="NEMO.User",
             ),
         ),
         migrations.AddField(

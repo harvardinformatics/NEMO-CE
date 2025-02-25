@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                         help_text="The user who last reset this counter",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
-                        to=settings.AUTH_USER_MODEL,
+                        to="NEMO.User",
                     ),
                 ),
                 (
