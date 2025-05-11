@@ -18,7 +18,7 @@ from django.utils import formats, timezone
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_GET, require_POST
 
-from NEMO.decorators import staff_member_required, synchronized
+from NEMO.decorators import staff_member_or_tool_staff_required, synchronized
 from NEMO.exceptions import ProjectChargeException, RequiredUnansweredQuestionsException
 from NEMO.forms import CommentForm, nice_errors
 from NEMO.models import (
@@ -122,7 +122,9 @@ def tool_status(request, tool_id):
         else 0
     )
     tool_credentials = []
-    if ToolCustomization.get_bool("tool_control_show_tool_credentials") and (user.is_staff or user.is_facility_manager):
+    if ToolCustomization.get_bool("tool_control_show_tool_credentials") and (
+        user.is_staff_on_tool(tool) or user.is_facility_manager
+    ):
         if user.is_facility_manager:
             tool_credentials = tool.toolcredentials_set.all()
         else:
@@ -203,13 +205,13 @@ def tool_status(request, tool_id):
     )
 
     # Staff need the user list to be able to qualify users for the tool.
-    if user.is_staff:
+    if user.is_staff_on_tool(tool):
         dictionary["users"] = User.objects.filter(is_active=True)
 
     return render(request, "tool_control/tool_status.html", dictionary)
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_GET
 def use_tool_for_other(request):
     dictionary = {"users": User.objects.filter(is_active=True).exclude(id=request.user.id)}
@@ -386,7 +388,7 @@ def create_comment(request):
 @require_POST
 def hide_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id)
-    if comment.author_id != request.user.id and not request.user.is_staff:
+    if comment.author_id != request.user.id and not request.user.is_staff_on_tool(comment.tool):
         return HttpResponseBadRequest("You may only hide a comment if you are its author or a staff member.")
     comment.visible = False
     comment.hidden_by = request.user
@@ -439,9 +441,9 @@ def enable_tool(request, tool_id, user_id, project_id, staff_charge):
     # Figure out if the tool usage is part of remote work
     # 1: Staff charge means it's always remote work
     # 2: Never remote if customization is set to never be remote
-    # 3: Always remote if operator is different from the user
+    # 3: Always remote if the operator is different from the user
     # 4: Unless customization is set to ask explicitly
-    remote_work = user != operator and operator.is_staff
+    remote_work = user != operator and operator.is_staff_on_tool(tool)
     if RemoteWorkCustomization.get("remote_work_on_behalf_of_user") == "ask":
         remote_work = remote_work and bool(request.POST.get("remote_work", False))
     elif RemoteWorkCustomization.get("remote_work_on_behalf_of_user") == "never":
@@ -653,7 +655,7 @@ def enter_wait_list(request):
 
     # The user must be qualified to use the tool itself, or the parent tool in case of alternate tool.
     tool_to_check_qualifications = tool.parent_tool if tool.is_child_tool() else tool
-    if tool_to_check_qualifications not in user.qualifications.all() and not user.is_staff:
+    if tool_to_check_qualifications not in user.qualifications.all() and not user.is_staff_on_tool(tool):
         return HttpResponseBadRequest("You are not qualified to use this tool.")
 
     entry = ToolWaitList()
@@ -690,9 +692,10 @@ def past_comments_and_tasks(request):
         if not start and not end and not search:
             return HttpResponseBadRequest("Please enter a search keyword, start date or end date.")
         tool_id = request.GET.get("tool_id")
+        tool = get_object_or_404(Tool, pk=tool_id)
         tasks = Task.objects.filter(tool_id=tool_id)
         comments = Comment.objects.filter(tool_id=tool_id)
-        if not user.is_staff:
+        if not user.is_staff_on_tool(tool):
             comments = comments.filter(staff_only=False)
         if start:
             tasks = tasks.filter(creation_time__gt=start)
@@ -710,16 +713,17 @@ def past_comments_and_tasks(request):
     past.reverse()
     if request.GET.get("export"):
         return export_comments_and_tasks_to_text(past)
-    return render(request, "tool_control/past_tasks_and_comments.html", {"past": past})
+    return render(request, "tool_control/past_tasks_and_comments.html", {"past": past, "tool": tool})
 
 
 @login_required
 @require_GET
 def ten_most_recent_past_comments_and_tasks(request, tool_id):
     user: User = request.user
+    tool = get_object_or_404(Tool, pk=tool_id)
     tasks = Task.objects.filter(tool_id=tool_id).order_by("-creation_time")[:10]
     comments = Comment.objects.filter(tool_id=tool_id).order_by("-creation_date")
-    if not user.is_staff:
+    if not user.is_staff_on_tool(tool):
         comments = comments.filter(staff_only=False)
     comments = comments[:10]
     past = list(chain(tasks, comments))
@@ -728,7 +732,7 @@ def ten_most_recent_past_comments_and_tasks(request, tool_id):
     past = past[0:10]
     if request.GET.get("export"):
         return export_comments_and_tasks_to_text(past)
-    return render(request, "tool_control/past_tasks_and_comments.html", {"past": past})
+    return render(request, "tool_control/past_tasks_and_comments.html", {"past": past, "tool": tool})
 
 
 def export_comments_and_tasks_to_text(comments_and_tasks: List):
@@ -796,7 +800,7 @@ def reset_tool_counter(request, counter_id):
         ]
         if facility_managers:
             message = f"""The {counter.name} counter for the {counter.tool.name} was reset to {counter.default_value} on {formats.localize(counter.last_reset)} by {counter.last_reset_by}.
-        
+
     Its last value was {counter.last_reset_value}."""
             send_mail(
                 subject=f"{counter.tool.name} counter reset",
@@ -808,15 +812,19 @@ def reset_tool_counter(request, counter_id):
     return redirect("tool_control")
 
 
-def interlock_bypass_allowed(user: User):
-    return user.is_staff or InterlockCustomization.get_bool("allow_bypass_interlock_on_failure")
+def interlock_bypass_allowed(user: User, item):
+    return (
+        user.is_staff
+        or user.is_staff_on_tool(item)
+        or InterlockCustomization.get_bool("allow_bypass_interlock_on_failure")
+    )
 
 
-def interlock_error(action: str, user: User):
+def interlock_error(action: str, user: User, item=None):
     error_message = InterlockCustomization.get("tool_interlock_failure_message")
     dictionary = {
         "message": linebreaksbr(error_message),
-        "bypass_allowed": interlock_bypass_allowed(user),
+        "bypass_allowed": interlock_bypass_allowed(user, item),
         "action": action,
     }
     return JsonResponse(dictionary, status=501)

@@ -9,7 +9,7 @@ from NEMO.utilities import distinct_qs_value_list, localize, naive_local_current
 from NEMO.views.customization import ToolCustomization
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_GET
 def configuration_agenda(request, time_period="today"):
     tool_ids = distinct_qs_value_list(

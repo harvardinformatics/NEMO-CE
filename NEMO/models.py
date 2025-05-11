@@ -906,6 +906,10 @@ class User(BaseModel, PermissionsMixin):
         return self.superuser_for_tools.exists()
 
     @property
+    def is_tool_staff(self):
+        return self.staff_for_tools.exists()
+
+    @property
     def is_project_pi(self):
         return self.managed_projects.exists()
 
@@ -920,6 +924,11 @@ class User(BaseModel, PermissionsMixin):
                 self.is_superuser,
             ]
         )
+
+    def is_staff_on_tool(self, tool):
+        from NEMO.templatetags.custom_tags_and_filters import is_staff_on_tool
+
+        return is_staff_on_tool(self, tool)
 
     def get_username(self):
         return self.username
@@ -1234,6 +1243,13 @@ class Tool(SerializationByNameModel):
         related_name="superuser_for_tools",
         help_text="Superusers who can train users on this tool.",
     )
+    _staff = models.ManyToManyField(
+        User,
+        db_table="NEMO_tool_staff",
+        blank=True,
+        related_name="staff_for_tools",
+        help_text="Users who can act as staff for this tool..",
+    )
     _adjustment_request_reviewers = models.ManyToManyField(
         User,
         db_table="NEMO_tool_adjustment_request_reviewers",
@@ -1501,6 +1517,15 @@ class Tool(SerializationByNameModel):
     def superusers(self, value):
         self.raise_setter_error_if_child_tool("superusers")
         self._superusers = value
+
+    @property
+    def staff(self) -> QuerySetType[User]:
+        return self.parent_tool.staff if self.is_child_tool() else self._staff
+
+    @staff.setter
+    def staff(self, value):
+        self.raise_setter_error_if_child_tool("staff")
+        self._staff = value
 
     @property
     def adjustment_request_reviewers(self) -> QuerySetType[User]:
@@ -1867,7 +1892,7 @@ class Tool(SerializationByNameModel):
         return self.name
 
     def is_child_tool(self):
-        return self.parent_tool is not None
+        return self.parent_tool_id is not None
 
     def is_parent_tool(self, parent_ids=None):
         if not parent_ids:
@@ -2454,9 +2479,11 @@ class Configuration(BaseModel, ConfigurationMixin):
             return color_list[index] if color_list and len(color_list) > index else None
 
     def user_is_maintainer(self, user):
-        if user in self.maintainers.all() or user.is_staff:
+        if user.is_staff_on_tool(self.tool):
             return True
-        if self.qualified_users_are_maintainers and (user in self.tool.user_set.all() or user.is_staff):
+        if user in self.maintainers.all():
+            return True
+        if self.qualified_users_are_maintainers and user in self.tool.user_set.all():
             return True
         return False
 
@@ -4964,6 +4991,7 @@ class ToolUsageCounter(BaseModel):
         user_filter = Q(is_facility_manager=True) | Q(is_superuser=True)
         if self.staff_members_can_reset:
             user_filter |= Q(is_staff=True)
+            user_filter |= Q(staff_for_tools__in=[self.tool])
         if self.superusers_can_reset:
             user_filter |= Q(superuser_for_tools__in=[self.tool])
         if self.qualified_users_can_reset:

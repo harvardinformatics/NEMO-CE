@@ -629,7 +629,7 @@ function create_calendar()
 	{
 		"header":
 		{
-			left: "prev,next today{% if user.is_staff %} proxyReservation scheduledOutage{% endif %}{% if "training"|customization:"training_module_enabled" == "enabled" %}{% if user|is_trainer %} scheduleTraining{% endif %} requestTraining{% endif %} login logout",
+			left: "prev,next today{% if user.is_staff or user.is_tool_staff %} proxyReservation scheduledOutage{% endif %} login logout",
 			center: "title",
 			right: "agendaDay,agendaWeek,month"
 		},
