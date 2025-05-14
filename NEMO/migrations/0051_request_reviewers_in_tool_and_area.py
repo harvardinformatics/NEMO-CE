@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
     ]
 
     def migrate_adjustment_request_reviewers_forward(apps, schema_editor):
+        pass
         # Tool = apps.get_model("NEMO", "Tool")
         # Area = apps.get_model("NEMO", "Area")
         # User = apps.get_model(settings.AUTH_USER_MODEL)
@@ -42,6 +43,7 @@ class Migration(migrations.Migration):
         #     area.adjustment_request_reviewers.set(area_adjustments[area.id])
 
     def migrate_adjustment_request_reviewers_reverse(apps, schema_editor):
+        pass
         # Tool = apps.get_model("NEMO", "Tool")
         # Area = apps.get_model("NEMO", "Area")
         # for tool in Tool.objects.all():
