@@ -13,45 +13,45 @@ class Migration(migrations.Migration):
     ]
 
     def migrate_adjustment_request_reviewers_forward(apps, schema_editor):
-        Tool = apps.get_model("NEMO", "Tool")
-        Area = apps.get_model("NEMO", "Area")
-        User = apps.get_model(settings.AUTH_USER_MODEL)
-        UserPreferences = apps.get_model("NEMO", "UserPreferences")
-        tool_adjustments: Dict[int, Set] = defaultdict(set)
-        area_adjustments: Dict[int, Set] = defaultdict(set)
-        managers_all_tool_adjustments = User.objects.filter(
-            is_active=True, is_facility_manager=True, preferences__tool_adjustment_notifications__isnull=True
-        )
-        managers_all_area_adjustments = User.objects.filter(
-            is_active=True, is_facility_manager=True, preferences__area_adjustment_notifications__isnull=True
-        )
-        for user_preference in UserPreferences.objects.filter(
-            Q(tool_adjustment_notifications__isnull=False) | Q(area_adjustment_notifications__isnull=False)
-        ):
-            for tool in user_preference.tool_adjustment_notifications.all():
-                tool_adjustments[tool.id].add(user_preference.user)
-                # Add managers who want to receive all
-                tool_adjustments[tool.id].update(managers_all_tool_adjustments)
-            for area in user_preference.area_adjustment_notifications.all():
-                area_adjustments[area.id].add(user_preference.user)
-                # Add managers who want to receive all
-                area_adjustments[area.id].update(managers_all_area_adjustments)
-        for tool in Tool.objects.in_bulk(tool_adjustments.keys()).values():
-            tool._adjustment_request_reviewers.set(tool_adjustments[tool.id])
-        for area in Area.objects.in_bulk(area_adjustments.keys()).values():
-            area.adjustment_request_reviewers.set(area_adjustments[area.id])
+        # Tool = apps.get_model("NEMO", "Tool")
+        # Area = apps.get_model("NEMO", "Area")
+        # User = apps.get_model(settings.AUTH_USER_MODEL)
+        # UserPreferences = apps.get_model("NEMO", "UserPreferences")
+        # tool_adjustments: Dict[int, Set] = defaultdict(set)
+        # area_adjustments: Dict[int, Set] = defaultdict(set)
+        # managers_all_tool_adjustments = User.objects.filter(
+        #     is_active=True, is_facility_manager=True, preferences__tool_adjustment_notifications__isnull=True
+        # )
+        # managers_all_area_adjustments = User.objects.filter(
+        #     is_active=True, is_facility_manager=True, preferences__area_adjustment_notifications__isnull=True
+        # )
+        # for user_preference in UserPreferences.objects.filter(
+        #     Q(tool_adjustment_notifications__isnull=False) | Q(area_adjustment_notifications__isnull=False)
+        # ):
+        #     for tool in user_preference.tool_adjustment_notifications.all():
+        #         tool_adjustments[tool.id].add(user_preference.user)
+        #         # Add managers who want to receive all
+        #         tool_adjustments[tool.id].update(managers_all_tool_adjustments)
+        #     for area in user_preference.area_adjustment_notifications.all():
+        #         area_adjustments[area.id].add(user_preference.user)
+        #         # Add managers who want to receive all
+        #         area_adjustments[area.id].update(managers_all_area_adjustments)
+        # for tool in Tool.objects.in_bulk(tool_adjustments.keys()).values():
+        #     tool._adjustment_request_reviewers.set(tool_adjustments[tool.id])
+        # for area in Area.objects.in_bulk(area_adjustments.keys()).values():
+        #     area.adjustment_request_reviewers.set(area_adjustments[area.id])
 
     def migrate_adjustment_request_reviewers_reverse(apps, schema_editor):
-        Tool = apps.get_model("NEMO", "Tool")
-        Area = apps.get_model("NEMO", "Area")
-        for tool in Tool.objects.all():
-            for user in tool._adjustment_request_reviewers.all():
-                if user.preferences:
-                    user.preferences.tool_adjustment_notifications.add(tool)
-        for area in Area.objects.all():
-            for user in area.adjustment_request_reviewers.all():
-                if user.preferences:
-                    user.preferences.area_adjustment_notifications.add(area)
+        # Tool = apps.get_model("NEMO", "Tool")
+        # Area = apps.get_model("NEMO", "Area")
+        # for tool in Tool.objects.all():
+        #     for user in tool._adjustment_request_reviewers.all():
+        #         if user.preferences:
+        #             user.preferences.tool_adjustment_notifications.add(tool)
+        # for area in Area.objects.all():
+        #     for user in area.adjustment_request_reviewers.all():
+        #         if user.preferences:
+        #             user.preferences.area_adjustment_notifications.add(area)
 
     operations = [
         migrations.AddField(
