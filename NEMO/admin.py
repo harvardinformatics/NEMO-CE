@@ -1936,6 +1936,7 @@ class AdjustmentRequestAdmin(admin.ModelAdmin):
     inlines = [RequestMessageInlines]
     list_display = (
         "creator",
+        "creation_time",
         "last_updated",
         "get_item",
         "get_time_difference",
