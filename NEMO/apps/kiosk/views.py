@@ -29,13 +29,8 @@ from NEMO.models import (
     UsageEvent,
     User,
 )
-<<<<<<< HEAD
 from NEMO.policy import accessory_conflicts_for_reservation, policy_class as policy
 from NEMO.utilities import localize, quiet_int
-=======
-from NEMO.policy import policy_class as policy
-from NEMO.utilities import localize, quiet_int, remove_duplicates
->>>>>>> 6a696b39 (- added support for staff on tools, defined in the admin page for tool or user:)
 from NEMO.views.area_access import log_out_user
 from NEMO.views.calendar import (
     cancel_the_reservation,
@@ -45,7 +40,7 @@ from NEMO.views.calendar import (
     set_reservation_configuration,
     shorten_reservation,
 )
-from NEMO.views.customization import ApplicationCustomization, ToolCustomization
+from NEMO.views.customization import ApplicationCustomization, ToolCustomization, UserCustomization
 from NEMO.views.tasks import save_task
 from NEMO.views.tool_control import (
     email_managers_required_questions_disable_tool,
@@ -170,7 +165,6 @@ def do_disable_tool(tool, customer, downtime, staff_shortening, bypass_interlock
         dictionary = {"message": response.content, "delay": 10}
         return render(request, "kiosk/acknowledgement.html", dictionary)
 
-<<<<<<< HEAD
     if not take_over:
         # All policy checks passed so try to disable the tool for the user.
         if tool.interlock and not tool.interlock.lock():
@@ -178,14 +172,6 @@ def do_disable_tool(tool, customer, downtime, staff_shortening, bypass_interlock
                 pass
             else:
                 return interlock_error("Disable", customer)
-=======
-    # All policy checks passed so try to disable the tool for the user.
-    if tool.interlock and not tool.interlock.lock():
-        if bypass_interlock and interlock_bypass_allowed(customer, tool):
-            pass
-        else:
-            return interlock_error("Disable", customer, tool)
->>>>>>> 6a696b39 (- added support for staff on tools, defined in the admin page for tool or user:)
 
     # Shorten the user's tool reservation since we are now done using the tool
     current_usage_event = tool.get_current_usage_event()
@@ -474,7 +460,19 @@ def choices(request):
         }
         return render(request, "kiosk/acknowledgement.html", dictionary)
 
+    show_access_expiration_banner = False
+    expiration_warning = UserCustomization.get_int("user_access_expiration_banner_warning")
+    expiration_danger = UserCustomization.get_int("user_access_expiration_banner_danger")
+    if customer.access_expiration and (expiration_warning or expiration_danger):
+        access_expiration_datetime = datetime.combine(customer.access_expiration, time.min).astimezone()
+        if access_expiration_datetime >= timezone.now():
+            if expiration_warning and access_expiration_datetime < timezone.now() + timedelta(days=expiration_warning):
+                show_access_expiration_banner = "warning"
+            if expiration_danger and access_expiration_datetime < timezone.now() + timedelta(days=expiration_danger):
+                show_access_expiration_banner = "danger"
+
     dictionary = {
+        "show_access_expiration_banner": show_access_expiration_banner,
         "now": timezone.now(),
         "customer": customer,
         "usage_events": list(usage_events),
