@@ -857,6 +857,7 @@ class ReservationAdmin(ObjPermissionAdminMixin, ModelAdminRedirectMixin, admin.M
     list_filter = (
         "cancelled",
         "missed",
+        "shortened",
         "waived",
         ("tool", admin.RelatedOnlyFieldListFilter),
         ("area", TreeRelatedFieldListFilter),
