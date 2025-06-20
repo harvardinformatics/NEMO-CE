@@ -197,6 +197,10 @@
                 window.close();
             }
             set_logged_in_user("");
+            if (close_when_done)
+            {
+                window.close();
+            }
 			default_content_element.show();
 		}
 		function clear_timeout()
