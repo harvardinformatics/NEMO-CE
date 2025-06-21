@@ -38,6 +38,7 @@ from NEMO.models import (
     Consumable,
     ConsumableCategory,
     ConsumableWithdraw,
+    Customization,
     Interlock,
     InterlockCard,
     InterlockCardCategory,
@@ -504,6 +505,12 @@ class ConsumableWithdrawSerializer(FlexFieldsSerializerMixin, ModelSerializer):
 class ContentTypeSerializer(ModelSerializer):
     class Meta:
         model = ContentType
+        fields = "__all__"
+
+
+class CustomizationSerializer(ModelSerializer):
+    class Meta:
+        model = Customization
         fields = "__all__"
 
 

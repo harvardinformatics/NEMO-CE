@@ -37,6 +37,7 @@ from NEMO.models import (
     Consumable,
     ConsumableCategory,
     ConsumableWithdraw,
+    Customization,
     Interlock,
     InterlockCard,
     InterlockCardCategory,
@@ -83,6 +84,7 @@ from NEMO.serializers import (
     ConsumableSerializer,
     ConsumableWithdrawSerializer,
     ContentTypeSerializer,
+    CustomizationSerializer,
     GroupSerializer,
     InterlockCardCategorySerializer,
     InterlockCardSerializer,
@@ -809,6 +811,16 @@ class ContentTypeViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
 
     def get_filename(self, *args, **kwargs):
         return f"{self.filename}-{export_format_datetime()}.xlsx"
+
+
+class CustomizationViewSet(ModelViewSet):
+    filename = "customizations"
+    queryset = Customization.objects.all()
+    serializer_class = CustomizationSerializer
+    filterset_fields = {
+        "name": string_filters,
+        "value": string_filters,
+    }
 
 
 class InterlockCardCategoryViewSet(ModelViewSet):
