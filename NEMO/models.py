@@ -1083,6 +1083,9 @@ class User(BaseModel, PermissionsMixin):
     def active_projects(self):
         return self.projects.filter(active=True, account__active=True)
 
+    def inactive_projects(self):
+        return self.projects.exclude(active=True, account__active=True)
+
     def charging_staff_time(self) -> bool:
         return StaffCharge.objects.filter(staff_member=self.id, end=None).exists()
 
