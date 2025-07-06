@@ -2202,6 +2202,23 @@ class Tool(SerializationByNameModel):
     def trainers(self) -> QuerySetType[User]:
         return User.objects.filter(
             Q(primary_tool_owner__in=[self]) | Q(backup_for_tools__in=[self]) | Q(superuser_for_tools__in=[self])
+    def get_tool_reservation_info_html(self):
+        content = escape(loader.render_to_string("snippets/tool_reservation_info.html", {"tool": self}))
+        return content
+
+    def has_reservation_rules(self):
+        return any([self.reservation_horizon, self.missed_reservation_threshold])
+
+    def has_reservation_usage_rules(self):
+        return any(
+            [
+                self.minimum_usage_block_time,
+                self.maximum_usage_block_time,
+                self.maximum_reservations_per_day,
+                self.maximum_future_reservations,
+                self.minimum_time_between_reservations,
+                self.maximum_future_reservation_time,
+            ]
         )
 
     def clean(self):
