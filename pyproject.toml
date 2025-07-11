@@ -1,8 +1,8 @@
 [project]
-name = "NEMO"
-version = "7.2.4"
-description = "NEMO is a laboratory logistics web application. Use it to schedule reservations, control tool access, track maintenance issues, and more."
-keywords = ["NEMO"]
+name = "NEMO-CE"
+version = "7.2.6"
+description = "NEMO Community Edition is a laboratory logistics web application based of NEMO. Use it to schedule reservations, control tool access, track maintenance issues, and more."
+keywords = ["NEMO", "NEMO-CE"]
 readme = "README.md"
 authors = [{name = "Atlantis Labs LLC", email = "atlantis@atlantislabs.io"}]
 classifiers = [
