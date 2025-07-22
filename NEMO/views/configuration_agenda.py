@@ -9,9 +9,10 @@ from NEMO.utilities import distinct_qs_value_list, localize, naive_local_current
 from NEMO.views.customization import ToolCustomization
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_GET
 def configuration_agenda(request, time_period="today"):
+    user: User = request.user
     tool_ids = distinct_qs_value_list(
         Configuration.objects.filter(enabled=True, exclude_from_configuration_agenda=False), "tool_id"
     )
@@ -56,7 +57,7 @@ def configuration_agenda(request, time_period="today"):
     tools = Tool.objects.filter(id__in=reservations.values_list("tool", flat=True))
     configuration_widgets = {}
     for tool in tools:
-        configuration_widgets[tool.id] = tool.configuration_widget(request.user, filter_for_agenda=True)
+        configuration_widgets[tool.id] = tool.configuration_widget(user, filter_for_agenda=True)
     dictionary = {
         "time_period": time_period,
         "tools": tools,

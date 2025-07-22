@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 import requests
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_POST
@@ -23,7 +24,7 @@ from NEMO.models import (
 from NEMO.views.users import get_identity_service
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_GET
 def qualifications(request):
     """Present a web page to allow staff to qualify or disqualify users on particular tools."""
@@ -44,7 +45,7 @@ def qualifications(request):
     )
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_POST
 def modify_qualifications(request):
     """Change the tools that a set of users is qualified to use."""
@@ -70,6 +71,10 @@ def modify_qualifications(request):
         ]
     )
     tools = Tool.objects.in_bulk(tools)
+    if not request.user.is_staff and not set(tools).issubset(
+        set(request.user.staff_for_tools.values_list("id", flat=True))
+    ):
+        return HttpResponseBadRequest("You cannot qualify for a tool you are not staff for.")
     if tools == {}:
         return HttpResponseBadRequest("You must specify at least one tool.")
 
@@ -204,10 +209,12 @@ def disqualify(request_user: User, tool: Tool, user: User, details=None):
     record_qualification(request_user, "disqualify", [tool], [user], disqualify_details=details)
 
 
-@staff_member_required
+@staff_member_or_tool_staff_required
 @require_GET
 def get_qualified_users(request):
     tool = get_object_or_404(Tool, id=request.GET.get("tool_id"))
+    if not request.user.is_staff_on_tool(tool):
+        return HttpResponseBadRequest("You do not have permission to view the qualified users for this tool.")
     users = User.objects.filter(is_active=True)
     qualifications_by_tool = Qualification.objects.filter(tool=tool)
     dictionary = {

@@ -28,7 +28,7 @@ from django.core.files.storage import default_storage
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import OperationalError
-from django.db.models import FileField, IntegerChoices, QuerySet
+from django.db.models import FileField, IntegerChoices, Model, QuerySet
 from django.http import HttpRequest, HttpResponse, QueryDict
 from django.shortcuts import resolve_url
 from django.template import Template
@@ -178,6 +178,30 @@ supported_embedded_video_extensions = [".mp4", ".ogv", ".webm", ".3gp"]
 supported_embedded_pdf_extensions = [".pdf"]
 supported_embedded_extensions = supported_embedded_pdf_extensions + supported_embedded_video_extensions
 CommaSeparatedListConverter = DelimiterSeparatedListConverter()
+
+
+# Class for Project Applications that can be used for autocomplete
+class ProjectApplication(object):
+    def __init__(self, name):
+        self.name = name
+        self.id = name
+
+    def __hash__(self):
+        # Use the id attribute (or name) for generating a hash
+        return hash(self.id)
+
+    def __eq__(self, other):
+        if isinstance(other, ProjectApplication):
+            return self.id == other.id
+        return False
+
+    def __str__(self):
+        return self.name
+
+
+# Class for Tool Categories that can be used for autocomplete
+class ToolCategory(ProjectApplication):
+    pass
 
 
 class EmptyHttpRequest(HttpRequest):
@@ -1131,3 +1155,56 @@ def safe_lazy_queryset_evaluation(qs: QuerySet, default=UNSET, raise_exception=F
             raise
         utilities_logger.warning("Could not fetch queryset", exc_info=True)
         return default, True
+
+
+def merge_dicts(first_dict: dict, second_dict: dict):
+    """Recursively merge two dictionaries."""
+    for key, value in second_dict.items():
+        if key in first_dict and isinstance(first_dict[key], dict) and isinstance(value, dict):
+            merge_dicts(first_dict[key], value)
+        else:
+            first_dict[key] = deepcopy(value)
+    return first_dict
+
+
+def load_properties_schemas(model_name: str) -> dict:
+    """Dynamically load and merge schemas from settings.py and all apps."""
+
+    def get_schemas():
+        combined_schemas = {}
+
+        variable_name = f"{model_name.upper()}_PROPERTIES_JSON_SCHEMA"
+        # Load schemas from each installed app (from properties_schemas.py)
+        for app_config in apps.get_app_configs():
+            try:
+                module = importlib.import_module(f"{app_config.name}.properties_schemas")
+                if hasattr(module, variable_name):
+                    combined_schemas = merge_dicts(combined_schemas, getattr(module, variable_name))
+            except ModuleNotFoundError:
+                # Ignore apps without schemas.py
+                continue
+
+        # Load schemas from `settings.py` if defined
+        global_schemas = getattr(settings, variable_name, {})
+        if isinstance(global_schemas, dict):
+            combined_schemas = merge_dicts(combined_schemas, global_schemas)
+
+        return combined_schemas
+
+    return get_schemas()
+
+
+def get_content_types_for_billable_item_subclasses() -> List[ContentType]:
+    # Collect all subclasses of BillableItemMixin
+    from NEMO.mixins import BillableItemMixin
+
+    subclasses = BillableItemMixin.__subclasses__()
+
+    # Retrieve the ContentType for each Charge type (if it's a subclass of Model)
+    billable_item_content_types = [
+        ContentType.objects.get_for_model(subclass, for_concrete_model=False)
+        for subclass in subclasses
+        if issubclass(subclass, Model)
+    ]
+
+    return sorted(billable_item_content_types, key=lambda x: x.name)

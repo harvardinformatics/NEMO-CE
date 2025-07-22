@@ -29,6 +29,7 @@ from NEMO.models import (
     Area,
     AreaAccessRecord,
     BuddyRequest,
+    Comment,
     Configuration,
     ConfigurationOption,
     ConfigurationPrecursor,
@@ -37,6 +38,7 @@ from NEMO.models import (
     Consumable,
     ConsumableCategory,
     ConsumableWithdraw,
+    Customization,
     Interlock,
     InterlockCard,
     InterlockCardCategory,
@@ -63,6 +65,7 @@ from NEMO.models import (
     UsageEvent,
     User,
     UserDocuments,
+    UserPreferences,
 )
 
 
@@ -194,6 +197,17 @@ class UserDocumentSerializer(FlexFieldsSerializerMixin, ModelSerializer):
 
     class Meta:
         model = UserDocuments
+        fields = "__all__"
+        expandable_fields = {
+            "user": "NEMO.serializers.UserSerializer",
+        }
+
+
+class UserPreferenceSerializer(FlexFieldsSerializerMixin, ModelSerializer):
+    user = PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+
+    class Meta:
+        model = UserPreferences
         fields = "__all__"
         expandable_fields = {
             "user": "NEMO.serializers.UserSerializer",
@@ -506,6 +520,12 @@ class ContentTypeSerializer(ModelSerializer):
         fields = "__all__"
 
 
+class CustomizationSerializer(ModelSerializer):
+    class Meta:
+        model = Customization
+        fields = "__all__"
+
+
 class InterlockCardCategorySerializer(ModelSerializer):
     class Meta:
         model = InterlockCardCategory
@@ -594,7 +614,18 @@ class ToolCredentialsSerializer(FlexFieldsSerializerMixin, ModelSerializer):
         }
 
 
-class StaffAssistanceRequestsSerializer(FlexFieldsSerializerMixin, ModelSerializer):
+class ToolCommentSerializer(FlexFieldsSerializerMixin, ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+        expandable_fields = {
+            "tool": "NEMO.serializers.ToolSerializer",
+            "author": "NEMO.serializers.UserSerializer",
+            "hidden_by": "NEMO.serializers.UserSerializer",
+        }
+
+
+class StaffAssistanceRequestSerializer(FlexFieldsSerializerMixin, ModelSerializer):
     class Meta:
         model = StaffAssistanceRequest
         fields = "__all__"

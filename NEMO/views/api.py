@@ -28,6 +28,7 @@ from NEMO.models import (
     Area,
     AreaAccessRecord,
     BuddyRequest,
+    Comment,
     Configuration,
     ConfigurationOption,
     ConfigurationPrecursor,
@@ -36,6 +37,7 @@ from NEMO.models import (
     Consumable,
     ConsumableCategory,
     ConsumableWithdraw,
+    Customization,
     Interlock,
     InterlockCard,
     InterlockCardCategory,
@@ -61,6 +63,7 @@ from NEMO.models import (
     UsageEvent,
     User,
     UserDocuments,
+    UserPreferences,
 )
 from NEMO.rest_pagination import NEMOPageNumberPagination
 from NEMO.serializers import (
@@ -82,6 +85,7 @@ from NEMO.serializers import (
     ConsumableSerializer,
     ConsumableWithdrawSerializer,
     ContentTypeSerializer,
+    CustomizationSerializer,
     GroupSerializer,
     InterlockCardCategorySerializer,
     InterlockCardSerializer,
@@ -97,10 +101,11 @@ from NEMO.serializers import (
     ReservationSerializer,
     ResourceSerializer,
     ScheduledOutageSerializer,
-    StaffAssistanceRequestsSerializer,
+    StaffAssistanceRequestSerializer,
     StaffChargeSerializer,
     TaskSerializer,
     TemporaryPhysicalAccessRequestSerializer,
+    ToolCommentSerializer,
     ToolCredentialsSerializer,
     ToolSerializer,
     ToolStatusSerializer,
@@ -109,11 +114,12 @@ from NEMO.serializers import (
     TrainingTechniqueSerializer,
     UsageEventSerializer,
     UserDocumentSerializer,
+    UserPreferenceSerializer,
     UserSerializer,
 )
 from NEMO.templatetags.custom_tags_and_filters import app_version
 from NEMO.typing import QuerySetType
-from NEMO.utilities import export_format_datetime, remove_duplicates
+from NEMO.utilities import export_format_datetime, load_properties_schemas, remove_duplicates
 from NEMO.views.api_billing import (
     BillingFilterForm,
     get_billing_charges,
@@ -242,6 +248,7 @@ class UserViewSet(ModelViewSet):
         "last_login": datetime_filters,
         "access_expiration": date_filters,
         "physical_access_levels": manykey_filters,
+        "projects": manykey_filters,
     }
 
 
@@ -257,6 +264,68 @@ class UserDocumentsViewSet(ModelViewSet):
         "display_order": number_filters,
         "uploaded_at": datetime_filters,
     }
+
+
+class UserPreferencesViewSet(ModelViewSet):
+    filename = "user_preferences"
+    queryset = UserPreferences.objects.all()
+    serializer_class = UserPreferenceSerializer
+    filterset_fields = {
+        "id": key_filters,
+        "user": key_filters,
+        "attach_created_reservation": boolean_filters,
+        "attach_cancelled_reservation": boolean_filters,
+        "display_new_buddy_request_notification": boolean_filters,
+        "email_new_buddy_request_reply": boolean_filters,
+        "email_new_adjustment_request_reply": boolean_filters,
+        "staff_status_view": string_filters,
+        "email_alternate": string_filters,
+        "email_send_reservation_emails": number_filters,
+        "email_send_buddy_request_replies": number_filters,
+        "email_send_staff_assistance_request_replies": number_filters,
+        "email_send_access_request_updates": number_filters,
+        "email_send_adjustment_request_updates": number_filters,
+        "email_send_broadcast_emails": number_filters,
+        "email_send_task_updates": number_filters,
+        "email_send_access_expiration_emails": number_filters,
+        "email_send_tool_qualification_expiration_emails": number_filters,
+        "email_send_wait_list_notification_emails": number_filters,
+        "email_send_usage_reminders": number_filters,
+        "email_send_reservation_reminders": number_filters,
+        "email_send_reservation_ending_reminders": number_filters,
+        "recurring_charges_reminder_days": string_filters,
+        "create_reservation_confirmation_override": boolean_filters,
+        "change_reservation_confirmation_override": boolean_filters,
+        "email_send_recurring_charges_reminder_emails": number_filters,
+        "tool_freed_time_notifications": manykey_filters,
+        "tool_freed_time_notifications_min_time": number_filters,
+        "tool_freed_time_notifications_max_future_days": number_filters,
+        "tool_task_notifications": manykey_filters,
+    }
+
+    def create(self, request, *args, **kwargs):
+        many = isinstance(request.data, list)
+        serializer = self.get_serializer(data=request.data, many=many)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data.get("user")
+        if not user:
+            raise ValidationError({"user": "This field is required"})
+        if UserPreferences.objects.filter(user=user).exists():
+            raise ValidationError({"user": "This user already has preferences"})
+        return super().create(request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+        prefs = serializer.save()
+        user = serializer.validated_data.get("user")
+        user.preferences_id = prefs.id
+        user.save(update_fields=["preferences_id"])
+
+    def perform_update(self, serializer):
+        user = serializer.validated_data.get("user")
+        current_user = self.get_object().user
+        if user and user != current_user:
+            raise ValidationError({"user": "Cannot change the user associated with these preferences"})
+        return super().perform_update(serializer)
 
 
 class ProjectDisciplineViewSet(ModelViewSet):
@@ -553,6 +622,7 @@ class ReservationViewSet(ModelViewSet):
         "area": key_filters,
         "question_data": string_filters,
         "cancelled": boolean_filters,
+        "shortened": boolean_filters,
         "missed": boolean_filters,
         "validated": boolean_filters,
         "validated_by": key_filters,
@@ -809,6 +879,16 @@ class ContentTypeViewSet(XLSXFileMixin, viewsets.ReadOnlyModelViewSet):
         return f"{self.filename}-{export_format_datetime()}.xlsx"
 
 
+class CustomizationViewSet(ModelViewSet):
+    filename = "customizations"
+    queryset = Customization.objects.all()
+    serializer_class = CustomizationSerializer
+    filterset_fields = {
+        "name": string_filters,
+        "value": string_filters,
+    }
+
+
 class InterlockCardCategoryViewSet(ModelViewSet):
     filename = "interlock_card_categories"
     queryset = InterlockCardCategory.objects.all()
@@ -942,10 +1022,29 @@ class ToolCredentialsViewSet(ModelViewSet):
     }
 
 
-class StaffAssistanceRequestsViewSet(ModelViewSet):
+class ToolCommentViewSet(ModelViewSet):
+    filename = "tool_comments"
+    queryset = Comment.objects.all()
+    serializer_class = ToolCommentSerializer
+    filterset_fields = {
+        "id": key_filters,
+        "tool": key_filters,
+        "author": key_filters,
+        "creation_date": datetime_filters,
+        "expiration_date": datetime_filters,
+        "visible": boolean_filters,
+        "hide_date": datetime_filters,
+        "hidden_by": key_filters,
+        "content": string_filters,
+        "staff_only": boolean_filters,
+        "pinned": boolean_filters,
+    }
+
+
+class StaffAssistanceRequestViewSet(ModelViewSet):
     filename = "staff_assistance_requests"
     queryset = StaffAssistanceRequest.objects.all()
-    serializer_class = StaffAssistanceRequestsSerializer
+    serializer_class = StaffAssistanceRequestSerializer
     filterset_fields = {
         "id": key_filters,
         "user": key_filters,
@@ -1070,6 +1169,7 @@ def get_app_metadata():
         "facility_name": ApplicationCustomization.get("facility_name"),
         "nemo_plugins": nemo_packages,
         "other_packages": other_packages,
+        "json_properties_schemas": {"tool": load_properties_schemas("Tool")},
     }
 
 
